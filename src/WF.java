@@ -338,8 +338,8 @@ public class WF {
         st=st+"#";
         String ist;
         String ifx;
-        int i;
-        for ( i= 0; i <st.length() ; i++) {
+        int i=0;
+        while(i<st.length()) {
             ist=st.substring(i,i+1);//输入串
             if (fx.empty()){
                 contained=false;
@@ -347,28 +347,24 @@ public class WF {
             }
             ifx=fx.pop();//分析栈栈顶
             if(ist.equals(ifx)){
-                continue;
+                i++;
             }else{
                 n=vn.indexOf(ifx);
                 t=vt.indexOf(ist);
                 if(n!=-1&&t!=-1){
                     String nfx=Table[n+1][t+1];
                     if(nfx.equals(String.valueOf(Njump))){
-                        i--;
                         continue;
                     }
                     if (nfx==null||nfx.equals("")){
-                        contained=false;
                         break;
                     }
-                    for (int j =nfx.length()-1; j>0 ; j--) {
+                    for (int j =nfx.length()-1; j>=0 ; j--) {
                         fx.push(nfx.substring(j,j+1));
                     }
                 }else{
-                    contained=false;
                     break;
                 }
-
             }
         }
         if (fx.empty()&&i==st.length()){
