@@ -11,7 +11,9 @@ public class WF {
     String S;//开始符
     Map<String, Integer> X;
     Map<String, Set> First;
-
+    Map<String, Set> FirstR;
+    Map<String, Set> Follow;
+    Map<YJ,Set> Select;
     public WF(Set<String> VN, Set<String> VT, Set<YJ> p, String s) {
         this.VN = VN;
         this.VT = VT;
@@ -20,6 +22,7 @@ public class WF {
     }
 
     public WF(String[] ip, String S) {
+        long begintime = System.nanoTime();
         this.S = S;
         VN = new HashSet();
         VT = new HashSet();
@@ -40,15 +43,15 @@ public class WF {
                     for (int j = 0; j < spr.length(); j++) {
                         VT.add(String.valueOf(spr.charAt(j)));
                     }
-
                 }
             }
         }
         VT.removeAll(VN);
         VT.remove(String.valueOf(Njump));
-        calculationX();
+
     }
-    private void calculationFirst() {
+
+    public void calculationFirst() {
         //1
         First =new HashMap<>();
         for (Object ivt:VT) {
@@ -62,17 +65,129 @@ public class WF {
             Set<String> ivnF=new HashSet<String>();
             First.put((String)ivn,ivnF);
         }
+        Set<YJ> p2 = new HashSet<>();//右部第一个字符为非总结符的产生式
         for (Object ip:P) {
             String ipLeft=((YJ)ip).getLeft();
             String ipRight=((YJ)ip).getRight();
+            String fR = ipRight.substring(0, 1);
+            if (!VN.contains(fR)) {//2 3
+                First.get(ipLeft).add(fR);
+            } else {
+                p2.add((YJ)ip);
+            }
         }
+        //4 5
+        boolean changed = true;
+        while (changed) {
+            changed=false;
+            for (Object ip : p2) {
+                String ipLeft = ((YJ) ip).getLeft();
+                String ipRight = ((YJ) ip).getRight();
+                Set<String> ipLFirst = First.get(ipLeft);
+                if(upFirst(ipLFirst,ipRight)){
+                    changed=true;
+                }
+            }
+        }
+        //6 右部的FirstR
+//        Map
+                FirstR =new HashMap<>();
+        for (Object ip : P) {
+            String ipRight = ((YJ) ip).getRight();
+            int pRL = ipRight.length();
+            Set<String> ipRF=new HashSet<String>();
+            upFirst(ipRF,ipRight);
+            FirstR.put(ipRight,ipRF);
+        }
+//        First.putAll(FirstR);
+ }
 
-
-
-
+    private boolean upFirst(Set<String> ipRFirst,String ipR){//根据ipR更新ipRFirst
+        boolean changed=false;
+        int pRL = ipR.length();
+        for (int i = 0; i < pRL; i++) {
+            String fR = ipR.substring(i, i + 1);
+            if (VN.contains(fR)) {
+                for (Object ifRFirst : First.get(fR)) {
+                    if (!((String) ifRFirst).equals(String.valueOf(Njump))) {
+                        if (ipRFirst.add((String) ifRFirst))
+                            changed = true;
+                    }
+                }
+                if (X.get(fR) != 1) {//fR!->kong
+                    break;
+                }
+                if (i == pRL - 1) {
+                    if (ipRFirst.add(String.valueOf(Njump)))
+                        changed = true;
+                }
+            } else {
+                if (ipRFirst.add(fR))
+                    changed = true;
+                break;
+            }
+        }
+        return changed;
     }
 
-    private void calculationX() {//计算非终结符能否推出空串的数组(Map)
+    public void calculationFollow(){
+        Follow=new HashMap<>();
+        for (Object ivn:VN) {
+            Set<String> ivnFo=new HashSet<String>();
+            Follow.put((String)ivn,ivnFo);
+        }
+        //1
+        Follow.get(S).add("#");
+        //2
+
+        boolean changed=true;//标记Follow是否变化
+        Set<String> adFo=new HashSet<String>();
+        while (changed){
+            changed=false;
+            for (Object ip:P) {
+                String ipLeft=((YJ)ip).getLeft();
+                String ipRight=((YJ)ip).getRight();
+                int pRL = ipRight.length();
+                for (int i = 0; i <pRL ; i++) {
+                    String fR = ipRight.substring(i, i + 1);
+                    if (VN.contains(fR)) {
+                        if(i!=pRL-1){
+                            adFo.clear();
+                            upFirst(adFo,ipRight.substring(i + 1,pRL));
+                            if(adFo.contains(String.valueOf(Njump))){
+                                adFo.remove(String.valueOf(Njump));
+                                adFo.addAll(Follow.get(ipLeft));
+                            }
+                            if(Follow.get(fR).addAll(adFo)){
+                                changed=true;
+                            }
+                        }else{
+                            if(Follow.get(fR).addAll(Follow.get(ipLeft))){
+                                changed=true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public void calculationSelect(){
+        Select=new HashMap<>();
+        for (Object ip:P) {
+            String ipLeft=((YJ)ip).getLeft();
+            String ipRight=((YJ)ip).getRight();
+            Set select=new HashSet();
+            select.addAll(FirstR.get(ipRight));
+            if(select.contains(String.valueOf(Njump))){
+                select.remove(String.valueOf(Njump));
+                select.addAll(Follow.get(ipLeft));
+            }
+            Select.put((YJ)ip,select);
+        }
+    }
+    public void calculationX() {
+        //计算非终结符能否推出空串的数组(Map)
         //1
         X = new HashMap();//-1 未确定 0不能 1能到'ε'
         for (Object key : VN) {
@@ -176,7 +291,7 @@ public class WF {
         }
         System.out.println("P:");
         for (Object ip : P) {
-            System.out.println(((YJ) ip).out());
+            System.out.println(((YJ) ip).toString());
         }
         System.out.println("S:");
         System.out.println(S);
@@ -186,6 +301,18 @@ public class WF {
         }
         System.out.println("First:");
         for (Object x : First.entrySet()) {
+            System.out.println(x.toString());
+        }
+        System.out.println("FirstR:");
+        for (Object x : FirstR.entrySet()) {
+            System.out.println(x.toString());
+        }
+        System.out.println("Follow:");
+        for (Object x : Follow.entrySet()) {
+            System.out.println(x.toString());
+        }
+        System.out.println("Select:");
+        for (Object x : Select.entrySet()) {
             System.out.println(x.toString());
         }
     }

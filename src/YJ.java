@@ -43,7 +43,8 @@ public class YJ {//语句
         }
         return yjList;
     }
-    public String out(){
+
+    public String toString(){
         return left+"->"+right;
     }
 }
