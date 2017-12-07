@@ -1,11 +1,11 @@
 public class Main {
     private static final char Njump = 'ε';
     public static void main(String arg[]){
-        String S="S";
-        String GS[]={"S->AB|bC","A->"+Njump+"|b","B->aD","B->"+Njump,"C->AD|b","D->aS|c"};
+//        String S="S";
+//        String GS[]={"S->AB|bC","A->"+Njump+"|b","B->aD","B->"+Njump,"C->AD|b","D->aS|c"};
 //        String GS[]={"S->a|^|(T)","T->SN","N->,SN","N->"+Njump};
-//        String S="E";
-//        String GS[]={"E->TA","A->+E|"+Njump,"T->FB","B->T|"+Njump,"F->PC","C->*C|"+Njump,"P->(E)|a|b|^"};
+        String S="E";
+        String GS[]={"E->TA","A->+E|"+Njump,"T->FB","B->T|"+Njump,"F->PC","C->*C|"+Njump,"P->(E)|a|b|^"};
         for (int i = 0; i <GS.length ; i++) {
             System.out.println(GS[i]);
         }
@@ -34,6 +34,7 @@ public class Main {
         G.calculationSelect();
 //        endtime = System.nanoTime();
 //        costTime = (endtime - begintime)/1000;
+        G.createLL1Table();
         G.out();
 //        System.out.println("耗时："+costTime+"微秒");
     }

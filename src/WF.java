@@ -1,7 +1,4 @@
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class WF {
     private static final char Njump = 'ε';
@@ -14,6 +11,7 @@ public class WF {
     Map<String, Set> FirstR;
     Map<String, Set> Follow;
     Map<YJ,Set> Select;
+    String [][]Table;
     public WF(Set<String> VN, Set<String> VT, Set<YJ> p, String s) {
         this.VN = VN;
         this.VT = VT;
@@ -52,6 +50,9 @@ public class WF {
     }
 
     public void calculationFirst() {
+        if(X==null){
+            calculationX();
+        }
         //1
         First =new HashMap<>();
         for (Object ivt:VT) {
@@ -131,6 +132,9 @@ public class WF {
     }
 
     public void calculationFollow(){
+        if(First==null){
+            calculationFirst();
+        }
         Follow=new HashMap<>();
         for (Object ivn:VN) {
             Set<String> ivnFo=new HashSet<String>();
@@ -173,6 +177,9 @@ public class WF {
     }
 
     public void calculationSelect(){
+        if(Follow==null){
+            calculationFollow();
+        }
         Select=new HashMap<>();
         for (Object ip:P) {
             String ipLeft=((YJ)ip).getLeft();
@@ -280,6 +287,36 @@ public class WF {
         }
     }
 
+    public void createLL1Table(){
+        if(Select==null){
+            calculationSelect();
+        }
+        ArrayList<String> vn=new ArrayList();
+        for (Object vN:VN) {
+             vn.add((String)vN);
+        }
+        ArrayList<String> vt=new ArrayList();
+        for (Object vT:VT) {
+            vt.add((String)vT);
+        }
+        vt.add("#");
+        Table=new String[vn.size()+1][vt.size()+1];
+
+        for (int i = 0; i <vt.size() ; i++) {
+            Table[0][i+1]=vt.get(i);
+        }
+        for (int i = 0; i <vn.size() ; i++) {
+            Table[i+1][0]=vn.get(i);
+        }
+        int n,t;
+        for (Object ip:P) {
+            n=vn.indexOf(((YJ)ip).getLeft());
+            for (Object s:Select.get((YJ)ip)) {
+                t=vt.indexOf((String)s);
+                Table[n+1][t+1]=((YJ)ip).getRight();
+            }
+        }
+    }
     public void out() {
         System.out.println("VN:");
         for (Object iVN : VN) {
@@ -314,6 +351,21 @@ public class WF {
         System.out.println("Select:");
         for (Object x : Select.entrySet()) {
             System.out.println(x.toString());
+        }
+        System.out.println("Table:");
+        for (int i=0;i<VN.size()+1;i++){
+            for (int j = 0; j <VT.size()+2 ; j++) {
+                String jt="";
+                if(Table[i][j]==null){
+                    Table[i][j]="";
+                }else{
+                    if(i>0&&j>0){
+                        jt="->";
+                    }
+                }
+                System.out.printf("%10s", jt+Table[i][j]);
+            }
+            System.out.println();
         }
     }
 }
