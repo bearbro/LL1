@@ -39,6 +39,8 @@ public class Main {
         G.out();
 //        System.out.println("耗时："+costTime+"微秒");
         System.out.println(G.contains("i+i*i"));
-        System.out.println(G.contains(""));
+        System.out.println(G.contains("I"));
+        System.out.println(G.contains("(i)"));
+        System.out.println(G.contains("(i+i*i)"));
     }
 }
