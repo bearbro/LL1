@@ -317,6 +317,67 @@ public class WF {
             }
         }
     }
+
+    public boolean contains(String st){
+        if(Table==null){
+            createLL1Table();
+        }
+        boolean contained=false;
+        ArrayList<String> vn=new ArrayList();
+        ArrayList<String> vt=new ArrayList();
+        for (int i = 0; i <VT.size()+1 ; i++) {
+            vt.add(Table[0][i+1]);
+        }
+        for (int i = 0; i <VN.size() ; i++) {
+            vn.add(Table[i+1][0]);
+        }
+        int n,t;
+        Stack<String> fx= new Stack<>();
+        fx.push("#");
+        fx.push(S);
+        st=st+"#";
+        String ist;
+        String ifx;
+        int i;
+        for ( i= 0; i <st.length() ; i++) {
+            ist=st.substring(i,i+1);//输入串
+            if (fx.empty()){
+                contained=false;
+                break;
+            }
+            ifx=fx.pop();//分析栈栈顶
+            if(ist.equals(ifx)){
+                continue;
+            }else{
+                n=vn.indexOf(ifx);
+                t=vt.indexOf(ist);
+                if(n!=-1&&t!=-1){
+                    String nfx=Table[n+1][t+1];
+                    if(nfx.equals(String.valueOf(Njump))){
+                        i--;
+                        continue;
+                    }
+                    if (nfx==null||nfx.equals("")){
+                        contained=false;
+                        break;
+                    }
+                    for (int j =nfx.length()-1; j>0 ; j--) {
+                        fx.push(nfx.substring(j,j+1));
+                    }
+                }else{
+                    contained=false;
+                    break;
+                }
+
+            }
+        }
+        if (fx.empty()&&i==st.length()){
+            contained=true;
+        }else {
+            contained=false;
+        }
+        return contained;
+    }
     public void out() {
         System.out.println("VN:");
         for (Object iVN : VN) {

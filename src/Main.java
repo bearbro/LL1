@@ -5,7 +5,8 @@ public class Main {
 //        String GS[]={"S->AB|bC","A->"+Njump+"|b","B->aD","B->"+Njump,"C->AD|b","D->aS|c"};
 //        String GS[]={"S->a|^|(T)","T->SN","N->,SN","N->"+Njump};
         String S="E";
-        String GS[]={"E->TA","A->+E|"+Njump,"T->FB","B->T|"+Njump,"F->PC","C->*C|"+Njump,"P->(E)|a|b|^"};
+//        String GS[]={"E->TA","A->+E|"+Njump,"T->FB","B->T|"+Njump,"F->PC","C->*C|"+Njump,"P->(E)|a|b|^"};
+        String GS[]={"E->TA","A->+TA|"+Njump,"T->FB","B->*FB|"+Njump,"F->i|(E)"};
         for (int i = 0; i <GS.length ; i++) {
             System.out.println(GS[i]);
         }
@@ -37,5 +38,7 @@ public class Main {
         G.createLL1Table();
         G.out();
 //        System.out.println("耗时："+costTime+"微秒");
+        System.out.println(G.contains("i+i*i"));
+        System.out.println(G.contains(""));
     }
 }
